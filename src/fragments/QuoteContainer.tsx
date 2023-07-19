@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { BiLogoTwitter } from "react-icons/bi";
 import { FaQuoteLeft } from "react-icons/fa6";
 import Button from "../components/Button";
+import About from "../components/About";
 
 const QuoteContainer = () => {
 
@@ -25,7 +26,7 @@ const QuoteContainer = () => {
 
   return (
     <div
-      className="h-screen flex items-center justify-center transition-colors duration-500 ease-in-out"
+      className="h-screen flex flex-col gap-3 items-center justify-center transition-colors duration-500 ease-in-out"
       style={{ backgroundColor: hexColor }}
     >
       <div id="quote-box" className='container w-full md:w-8/12 lg:w-5/12 flex flex-col gap-8 bg-white border p-12 rounded-lg'>
@@ -66,6 +67,7 @@ const QuoteContainer = () => {
           </Button>
         </div>
       </div>
+      <About />
     </div>
   )
 }
