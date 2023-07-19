@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { BiLogoTwitter } from "react-icons/bi";
-import { FaQuoteLeft } from "react-icons/fa6";
 import Button from "../components/Button";
 import About from "../components/About";
+import axios from "axios";
+import ShareTwitter from "../components/ShareTwitter";
+import QuoteContentSkeleton from "./QuoteContentSkeleton";
+import QuoteContent from "./QuoteContent";
 
 const QuoteContainer = () => {
 
@@ -20,9 +22,54 @@ const QuoteContainer = () => {
 
     setHexColor(hexColor);
   }
+
+  type Quote = {
+    text: string;
+    author: string;
+  }
+
+  const [quote, setQuote] = useState<Quote>({ text: '', author: '' });
+  const [loadingQoute, setLoadingQoute] = useState(true);
+  const fetchNewQuote = (): void => {
+    setLoadingQoute(true);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    axios.get(import.meta.env.VITE_RAPID_QOUTES_URL, {
+      params: { category: 'all', count: '1' },
+      headers: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        'X-RapidAPI-Key': import.meta.env.VITE_RAPID_QOUTES_KEY,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        'X-RapidAPI-Host': import.meta.env.VITE_RAPID_QOUTES_HOST
+      },
+    }
+    ).then(res => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { data } = res;
+
+      const quote: Quote = {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        text: data[0].text,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        author: data[0].author,
+      };
+
+      generateRandomColor();
+      setQuote(quote);
+
+    }).catch(err => {
+      console.log(err);
+    }).finally(() => {
+      setLoadingQoute(false);
+    });
+  };
+
   useEffect(() => {
     generateRandomColor();
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    fetchNewQuote();
   }, [])
+
 
   return (
     <div
@@ -31,37 +78,26 @@ const QuoteContainer = () => {
     >
       <div id="quote-box" className='container w-full md:w-8/12 lg:w-5/12 flex flex-col gap-8 bg-white border p-12 rounded-lg'>
         <div className='flex flex-col gap-6'>
-          <h2 
-            id="text" 
-            className="text-2xl lg:text-3xl font-bold text-center gap-2 transition-colors duration-500 ease-in-out"
-            style={{ color: hexColor }}
-          >
-            <FaQuoteLeft className="w-8 h-8" />
-            Two roads diverged in a wood, and I—I took the one less traveled by, And that has made all the difference.
-          </h2>
-          <p
-            id="author"
-            className="text-md md:text-xl font-medium text-right transition-colors duration-500 ease-in-out"
-            style={{ color: hexColor }}
-          >
-            - Nur Sasongko
-          </p>
+          {loadingQoute && (<QuoteContentSkeleton />)}
+          {!loadingQoute && (
+            <QuoteContent 
+              quote={quote.text}
+              author={quote.author}
+              hexColor={hexColor}
+            />
+          )}
         </div>
         <div className='flex justify-between mt-3 p-2'>
-          <a
+          <ShareTwitter
             id="tweet-quote"
-            href="https://twitter.com/intent/tweet"
-            className="p-2 background text-sm text-white rounded-lg transition-colors duration-500 ease-in-out"
-            style={{ backgroundColor: hexColor }}
-          >
-            <BiLogoTwitter
-              className="w-8 h-8"
-            />
-          </a>
+            hexColor={hexColor}
+            isLoading={loadingQoute}
+          />
           <Button
             id="new-quote"
-            onClick={() => generateRandomColor()}
+            onClick={() => fetchNewQuote()}
             bgColor={hexColor}
+            isLoading={loadingQoute}
           >
             New Qoute
           </Button>
