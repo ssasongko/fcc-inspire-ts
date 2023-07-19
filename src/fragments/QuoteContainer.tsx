@@ -57,8 +57,8 @@ const QuoteContainer = () => {
       generateRandomColor();
       setQuote(quote);
 
-    }).catch(err => {
-      console.log(err);
+    }).catch(() => {
+      return;
     }).finally(() => {
       setLoadingQoute(false);
     });
